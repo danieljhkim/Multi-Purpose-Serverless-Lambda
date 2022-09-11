@@ -1,23 +1,10 @@
-const AWS = require('aws-sdk');
+
 const axios = require('axios');
 
-const dynamo = new AWS.DynamoDB.DocumentClient({
-  region: "us-east-1",
-  endpoint: "https://dynamodb.us-east-1.amazonaws.com",
-  apiVersion: 'latest',
-});
-
-if(false) {
-  AWS.config.update({
-    accessKeyId: "AKIAXYPR2TVB52HBIAD6",
-    secretAccessKey: "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"
-  });
-}
-
-const coinList = "ethereum,bitcoin,xrp,solana,dogecoin,tether,usd-coin,binancecoin,cardano,binance-usd,polkadot,wrapped-bitcoin,tron,dai,staked-ether,avalanche-2,shiba-inu,leo-token,crypto-com-chain,matic-network,stellar,bitcoin-cash,ftx-token,monero,ethereum-classic,vechai";
-const rCoins = ["ethereum", "bitcoin", "xrp", "solana", "dogecoin",  "binancecoin", "cardano"]
-const stableCoins = ["tether", "usd-coin","binance-usd"]
-const dbCoins = [...rCoins, ...stableCoins];
+const coinList = "ethereum,bitcoin,ripple,solana,dogecoin,tether,usd-coin,compound-usd-coin,theta-token,compound-ether,axie-infinity,true-usd,filecoin,decentraland,the-sandbox,apecoin,kucoin-shares,internet-computer,frax,binancecoin,cardano,binance-usd,okb,polkadot,chain-2,wrapped-bitcoin,tron,flow,dai,cosmos,staked-ether,tezos,theta-fuel,hedera-hashgraph,avalanche-2,near,uniswap,shiba-inu,vechain,leo-token,algorand,crypto-com-chain,matic-network,stellar,bitcoin-cash,ftx-token,monero,ethereum-classic,vechai";
+const rCoins = ["ethereum", "bitcoin", "ripple"]
+const stableCoins = ["tether", "usd-coin","binance-usd","dai","frax","true-usd","compound-usd-coin"]
+const dbCoins = [...rCoins];
 
 exports.handler = async (event, context) => {
     console.log('Received event:', JSON.stringify(event, null, 2));
@@ -74,54 +61,3 @@ exports.handler = async (event, context) => {
       headers,
     };
 };
-
-async function putData(name, date, price, mc, vol) {
-  const params = {
-    TableName: "coins",
-    Key: {
-      coin: name,
-      datetime: date,
-    },
-    Item: { 
-      coin: name,
-      datetime: date,
-      price: price,
-      market_cap: mc,
-      volumn: vol
-    },
-  };
-  try {
-    const data = await dynamo.put(params).promise();
-    return data;
-  } catch(e) {
-    console.error(`ERROR putting data -> ${e}`);
-    throw e;
-  }
-}
-
-async function putGlobalData(date, stableMC, regMC, stableVol, regVol, totalMC, totalVol) {
-  const params = {
-    TableName: "coins",
-    Key: {
-      coin: "global",
-      datetime: date,
-    },
-    Item: { 
-      coin: name,
-      datetime: date,
-      stable_mc: stableMC,
-      none_stable_mc: regMC,
-      stable_vol: stableVol,
-      none_stable_vol: regVol,
-      total_mc: totalMC,
-      total_vol: totalVol
-    },
-  };
-  try {
-    const data = await dynamo.put(params).promise();
-    return data;
-  } catch(e) {
-    console.error(`ERROR putting data -> ${e}`);
-    throw e;
-  }
-}
