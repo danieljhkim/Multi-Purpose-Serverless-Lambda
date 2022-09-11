@@ -1,6 +1,7 @@
 const { coinService } = require('../services/coin.service');
 const { genericValidator } = require('../validator');
 const { coinDB } = require('../../aws/dynamo/dao/coinDB');
+const { coinList, rCoins, stableCoins, dbCoins } = require('./constants')
 
 const putCoinData = async ({ event }) => {
   console.log('Received event:', JSON.stringify(event, null, 2));
