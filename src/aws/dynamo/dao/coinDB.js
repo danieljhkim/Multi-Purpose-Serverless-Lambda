@@ -32,3 +32,5 @@ const CoinDB = () => {
     putGlobalData: _putGlobalData
   }
 }
+
+module.exports = { CoinDB };
