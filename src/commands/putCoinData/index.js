@@ -29,7 +29,7 @@ const putCoinData = async ({ event }) => {
       totalVol += data.usd_24h_vol;
       dateTime = data.last_updated_at.toString();
       if(dbCoins.includes(name)) {
-        let db = await putData(name, data.last_updated_at.toString(), data.usd, data.usd_market_cap, data.usd_24h_vol);
+        let db = await putData(name, data.last_updated_at.toString(), data.usd, data.usd_market_cap, data.usd_24h_vol);  //FIXME: 
         if(db?.$response?.error === null) {
           console.log(`DB update success => ${JSON.stringify(db)}`);
           body.status.push(`${name} => success`);
@@ -38,8 +38,7 @@ const putCoinData = async ({ event }) => {
         }
       }
     }
-    const items = { stableMc, stableVol, rMc, rVol, totalMc, totalVol };
-    const db = await coinDB().put({ pk:"global", sk: dateTime, items });
+    const db = await coinDB().putGlobalData(stableMc, stableVol, rMc, rVol, totalMc, totalVol); //FIXME: 
   } catch (err) {
     statusCode = '500';
     body = err.message;
