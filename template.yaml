@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Multi-purpose serverless lambda 
+
+Globals:
+  Function:
+    Timeout: 3
+
+Resources:
+  MultiPurposeFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: multi-api/
+      Handler: src/app.handler
+      Runtime: nodejs14.x
+      Architectures:
+        - x86_64
+      Events:
+        multiPurposeTrigger:
+          Type: Api
+          Properties:
+            Path: /api
+            Method: post
+      Environment:
+        Variables:
+          ENV: dev
+          REGION: use-east-1

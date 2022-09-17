@@ -1,5 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const yaml = require('js-yaml');
+const fs = require('fs');
+require('dotenv').config();
+
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const getInt = (val, defVal) => {
@@ -8,8 +12,16 @@ const getInt = (val, defVal) => {
   return parsed;
 };
 
-const { handler } = require('./src/index');
+const loadEnv = (envFile) => {
+  const doc = yaml.safeLoad(fs.readFileSync(envFile, 'utf8'));
+  const env = doc.Resources.MultiPurposeFunction.Properties.Environment.Variables;
+  Object.keys(env).forEach((key) => {
+    process.env[key] = env[key];
+  });
+};
 
+loadEnv('template.yaml');
+const { handler } = require('./src/index');
 const app = express();
 const port = getInt(process.env.PORT, 8080);
 
@@ -21,10 +33,10 @@ app.listen(port, () => {
 
   router.post('/api', async (req, res, next) => {
     // transform payload in to event
-    const { requestContext: context, ...event } = req.body;
+    const { event } = req.body;
+    const context = {};
     try {
-      const cback = () => {}; 
-      const response = await handler(event, context, cback, req.headers);
+      const response = await handler(event, context);
       console.log('Response =>', response);
       for(let entry in response.headers){
         res.setHeader(entry, response.headers[entry]);
