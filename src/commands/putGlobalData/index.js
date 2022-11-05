@@ -1,7 +1,6 @@
-const { coinService } = require('../services/coin.service');
-const { genericValidator } = require('../validator');
+const { coinService } = require('../../services/coin.service');
 const { coinDB } = require('../../aws/dynamo/dao/coinDB');
-const { coinList, rCoins, stableCoins, dbCoins } = require('./constants')
+const { coinList, stableCoins } = require('../../helpers/constants')
 
 const putCoinData = async ({ event }) => {
   console.log('Received event:', JSON.stringify(event, null, 2));
@@ -12,7 +11,7 @@ const putCoinData = async ({ event }) => {
   };
   try {
     let [totalMC, totalVol, stableMC, stableVol, rMC, rVol, dateTime] = [0, 0, 0, 0, 0, 0, ""];
-    const respData = await coinService().getCoinData(coinList)
+    const respData = await coinService().getCoinData(coinList);
     body.status = [];
     let i = 0;
     for(let obj in respData) {

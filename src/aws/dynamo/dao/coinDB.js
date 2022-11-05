@@ -1,10 +1,10 @@
-const { dynamoClient } = require('./connection/dynamoClient');
+const { dynamoClient } = require('../connection/dynamoClient');
 
-const CoinDB = () => {
+const CoinDB = (tableName) => {
 
-  const _dbClient = dynamoClient();
+  const _dbClient = dynamoClient(tableName);
 
-  const _putData = async (name, date, price, mc, vol) => {
+  const _putChartData = async (name, date, price, mc, vol) => {
     const _items = {
       price: price,
       market_cap: mc,
@@ -28,7 +28,7 @@ const CoinDB = () => {
   }
 
   return {
-    putData: _putData,
+    putChartData: _putChartData,
     putGlobalData: _putGlobalData
   }
 }

@@ -26,3 +26,5 @@ Resources:
         Variables:
           ENV: dev
           REGION: use-east-1
+          COIN_HOURLY_TABLE: coin-hourly
+

@@ -1,22 +1,24 @@
 const AWS = require('aws-sdk');
-const { GLOBAL_SCHEMA } = require('../constants')
+const { SCHEMA } = require('../constants')
 
 const _dynamo = new AWS.DynamoDB.DocumentClient({
-  region: process.env.DYNAMO_REGION,
-  endpoint: process.env.DYNAMO_ENDPOINT,
-  apiVersion: 'latest',
+  region: process.env.DYNAMO_REGION || 'us-east-1',
+  apiVersion: 'latest'
 });
 
-const dynamoClient = () => {
+const dynamoClient = (tableName) => {
 
   const _param = {
-    TableName: process.env.DYNAMO_TABLE,
+    TableName: tableName,
   }
+
+  const _SCHEMA = SCHEMA[tableName];
+  if(!_SCHEMA) throw new Error("Invalid Table Name: " + tableName);
 
   const _get = async ({ pk, sk }) => {
     _param.Key = {
-      [GLOBAL_SCHEMA.partitionKey]: pk,
-      [GLOBAL_SCHEMA.sortKey]: sk,
+      [_SCHEMA.partitionKey]: pk,
+      [_SCHEMA.sortKey]: sk,
     };
     try {
       const data = await _dynamo.get(_param).promise();
@@ -30,7 +32,7 @@ const dynamoClient = () => {
   const _query = async ({ pk }) => {
     _param.KeyConditionExpression = `#PK = :pk`;
     _param.ExpressionAttributeNames = {
-      "#PK": GLOBAL_SCHEMA.partitionKey,
+      "#PK": _SCHEMA.partitionKey,
     };
     _param.ExpressionAttributeValues = {
       ':pk': pk.toUpperCase()
@@ -73,12 +75,12 @@ const dynamoClient = () => {
 
   const _put = async ({ pk, sk, items }) => {
     _param.Key = {
-      [GLOBAL_SCHEMA.partitionKey]: pk,
-      [GLOBAL_SCHEMA.sortKey]: sk,
+      [_SCHEMA.partitionKey]: pk,
+      [_SCHEMA.sortKey]: sk,
     }
     _param.Item = {
-      [GLOBAL_SCHEMA.partitionKey]: pk,
-      [GLOBAL_SCHEMA.sortKey]: sk,
+      [_SCHEMA.partitionKey]: pk,
+      [_SCHEMA.sortKey]: sk,
       ...items,
     };
     try {
@@ -91,8 +93,8 @@ const dynamoClient = () => {
 
   const _updateSingle = async ({ pk, sk }, {column, value}) => {
     _param.Key = {
-      [GLOBAL_SCHEMA.partitionKey]: pk,
-      [GLOBAL_SCHEMA.sortKey]: sk,
+      [_SCHEMA.partitionKey]: pk,
+      [_SCHEMA.sortKey]: sk,
     }
     _param.UpdateExpression = 'SET #COL = :val';
     _param.ExpressionAttributeNames = {
@@ -112,8 +114,8 @@ const dynamoClient = () => {
 
   const _update = async ({ pk, sk, items }) => {
     _param.Key = {
-      [GLOBAL_SCHEMA.partitionKey]: pk,
-      [GLOBAL_SCHEMA.sortKey]: sk,
+      [_SCHEMA.partitionKey]: pk,
+      [_SCHEMA.sortKey]: sk,
     }
     _param.UpdateExpression = `set ${Object.keys(items).map(key => `#${key} = :${key}`).join(', ')}`;
     _param.ExpressionAttributeNames = {

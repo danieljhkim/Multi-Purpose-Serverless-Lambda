@@ -2,25 +2,24 @@ const { commands } = require('./commands');
 
 exports.handler = async (event, context) => {
   try {
-    const eventBody = JSON.parse(event.body);
+    const eventBody = event.body;
     const command = commands[eventBody.action];
     if (!command) {
       throw new Error(`Action ${eventBody.action} is not supported.`);
     }
-    const result = await command({ event, context });
+    const result = await command({ eventBody, context });
 
     const response = {
       statusCode: result.statusCode || 200,
-      body: JSON.stringify(result.body),
+      body: result.body,
       headers: result.headers || { "content-type": "application/json" },
     }
     return response;
-    
   } catch(e) {
     console.error(e);
     const response = {
       statusCode: e.statusCode || 500,
-      body: JSON.stringify({ error: e.message }),
+      body: { error: e.message },
       headers: { "content-type": "application/json" },
     };
     return response;

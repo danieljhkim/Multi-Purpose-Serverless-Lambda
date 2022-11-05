@@ -61,7 +61,6 @@ package-lock.json
 .rts2_cache_es/
 .rts2_cache_umd/
 
-package-lock.json
 
 # Optional REPL history
 .node_repl_history

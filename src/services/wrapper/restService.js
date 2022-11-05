@@ -7,6 +7,9 @@ const RestService = (defaultConfig={}) => {
     newConfig.url = url;
     newConfig.method = method;
     newConfig.headers = {...newConfig.headers, ...config.headers};
+    if(config.data) {
+      newConfig.data = config.data;
+    }
     return newConfig;
   };
 
