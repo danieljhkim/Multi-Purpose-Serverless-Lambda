@@ -1,8 +1,9 @@
 const { commands } = require('./commands');
+const { jparse } = require('./helpers/util')
 
 exports.handler = async (event, context) => {
   try {
-    const eventBody = event.body;
+    const eventBody = jparse(event.body);
     const command = commands[eventBody.action];
     if (!command) {
       throw new Error(`Action ${eventBody.action} is not supported.`);

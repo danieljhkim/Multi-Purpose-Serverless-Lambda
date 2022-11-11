@@ -1,6 +1,6 @@
 const { coinService } = require('../../services/coin.service');
 const { CoinDB } = require('../../aws/dynamo/dao/coinDB');
-const { coinIndex } = require('../../helpers/constants');
+const { coinIndex, stableCoins } = require('../../helpers/constants');
 const receipt = [];
 
 const putHourlyData = async ({ eventBody }) => {
@@ -11,9 +11,11 @@ const putHourlyData = async ({ eventBody }) => {
     'Content-Type': 'application/json',
   };
   try {
+    const coinArr = [...coinIndex, ...stableCoins];
+    const coinsToLog = eventBody.coins || coinArr;
     const days = eventBody.days;
-    for(let i=0; i<coinIndex.length; i++) {
-      let coin = coinIndex[i];
+    for(let i=0; i<coinsToLog.length; i++) {
+      let coin = coinsToLog[i];
       await fetchStoreData(coin, days);
     }
     body.receipt = receipt;
