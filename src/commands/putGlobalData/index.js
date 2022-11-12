@@ -1,54 +1,55 @@
 const { coinService } = require('../../services/coin.service');
-const { coinDB } = require('../../aws/dynamo/dao/coinDB');
+const { CoinDB } = require('../../aws/dynamo/dao/coinDB');
 const { coinList, stableCoins } = require('../../helpers/constants')
 
-const putCoinData = async ({ event }) => {
-  console.log('Received event:', JSON.stringify(event, null, 2));
-  const body = {};
-  let statusCode = '200';
+const putGlobalCoinData = async ({ eventBody }) => {
+  console.log('Received event:', JSON.stringify(eventBody, null, 2));
+  let body = {
+    status: "success"
+  };
+  let statusCode = 200;
   const headers = {
     'Content-Type': 'application/json',
   };
   try {
-    let [totalMC, totalVol, stableMC, stableVol, rMC, rVol, dateTime] = [0, 0, 0, 0, 0, 0, ""];
-    const respData = await coinService().getCoinData(coinList);
-    body.status = [];
-    let i = 0;
-    for(let obj in respData) {
-      let name = Object.keys(respData)[i++];
-      let data = respData[name];
-      if(stableCoins.includes(name)) {
-        stableMC +=  data.usd_market_cap;
-        stableVol += data.usd_24h_vol;
-      } else {
-        rMC +=  data.usd_market_cap;
-        rVol += data.usd_24h_vol;
-      }
-      totalMC += data.usd_market_cap;
-      totalVol += data.usd_24h_vol;
-      dateTime = data.last_updated_at.toString();
-      if(dbCoins.includes(name)) {
-        let db = await putData(name, data.last_updated_at.toString(), data.usd, data.usd_market_cap, data.usd_24h_vol);  //FIXME: 
-        if(db?.$response?.error === null) {
-          console.log(`DB update success => ${JSON.stringify(db)}`);
-          body.status.push(`${name} => success`);
-        } else {
-          body.status.push(`${name} => failed`);
-        }
+    const interval = eventBody["interval"] || 'hourly';
+    let [stableMC,stableVol,unstableMC,unstableVol,datetime] =[0, 0, 0, 0, Math.floor(Date.now() / 1000)];
+    const unStableResp = await coinService().getCoinData(coinList);
+    const unstables = Object.keys(unStableResp).map(key => unStableResp[key]);
+    if(Array.isArray(unstables)) {
+      for(let i=0; i<unstables.length; i++) {
+        unstableMC += unstables[i]['usd_market_cap'];
+        unstableVol += unstables[i]['usd_24h_vol'];
       }
     }
-    const db = await coinDB().putGlobalData(stableMc, stableVol, rMc, rVol, totalMc, totalVol); //FIXME: 
+    const stableResp = await coinService().getCoinData(stableCoins.join());
+    const stables = Object.keys(stableResp).map(key => stableResp[key]);
+    if(Array.isArray(stables)) {
+      for(let i=0; i<stables.length; i++) {
+        stableMC += stables[i]['usd_market_cap'];
+        stableVol += stables[i]['usd_24h_vol'];
+      }
+    }
+    stableMC = Math.floor(stableMC);
+    unstableMC = Math.floor(unstableMC);
+    stableVol = Math.floor(stableVol);
+    unstableVol = Math.floor(unstableVol);
+    const db = await CoinDB("coin-global").putGlobalData(interval, datetime, stableMC, unstableMC, stableVol, unstableVol);
+    if(db['$response'].error) {
+      body.status = "failed";
+    }
   } catch (err) {
-    statusCode = '500';
-    body = err.message;
+    statusCode = 500;
+    body.status = "failed";
+    body.message = err.message;
   } finally {
     body = JSON.stringify(body);
   }
   return {
     statusCode,
     body,
-    headers,
+    headers
   };
 }
 
-module.exports = { putCoinData }
+module.exports = { putGlobalCoinData }

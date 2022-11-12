@@ -14,16 +14,17 @@ const CoinDB = (tableName) => {
     return data;
   }
 
-  const _putGlobalData = async (date, stableMC, regMC, stableVol, regVol, totalMC, totalVol) => {
+  const _putGlobalData = async (pk, date, stableMC, regMC, stableVol, regVol) => {
+    //pk: hourly / daily
     const _items = {
       stable_mc: stableMC,
       none_stable_mc: regMC,
       stable_vol: stableVol,
       none_stable_vol: regVol,
-      total_mc: totalMC,
-      total_vol: totalVol
+      total_mc: stableMC + regMC,
+      total_vol: stableVol + regVol
     };
-    const data = await _dbClient.put({pk: 'global', sk: date, items: _items});
+    const data = await _dbClient.put({pk: pk, sk: date, items: _items});
     return data;
   }
 

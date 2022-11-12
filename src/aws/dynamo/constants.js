@@ -1,5 +1,5 @@
 const COIN_GLOBAL_SCHEMA = {
-  partitionKey: "coin",
+  partitionKey: "interval",
   sortKey: "datetime",
 }
 
