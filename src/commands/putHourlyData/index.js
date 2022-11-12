@@ -20,6 +20,7 @@ const putHourlyData = async ({ eventBody }) => {
     }
     body.receipt = receipt;
   } catch (err) {
+    console.log("Error => ", JSON.stringify(err));
     statusCode = 500;
     body.message = err.message;
   }
