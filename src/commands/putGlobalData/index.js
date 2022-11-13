@@ -15,6 +15,7 @@ const putGlobalCoinData = async ({ eventBody }) => {
   };
   try {
     const interval = eventBody["interval"] || 'hourly';
+    const CSD_TABLE = interval === 'hourly' ? process.env['CSD_HOURLY_TABLE'] : process.env['CSD_DAILY_TABLE'];
 
     //---------------- globals ------------------ //
     let [stableMC, stableVol, unstableMC, unstableVol, datetime] = [0, 0, 0, 0, Math.floor(Date.now() / 1000)];
@@ -44,14 +45,14 @@ const putGlobalCoinData = async ({ eventBody }) => {
     unstableMC = Math.floor(unstableMC);
     stableVol = Math.floor(stableVol);
     unstableVol = Math.floor(unstableVol);
-    const db = await CoinDB("global-hourly").putGlobalData(interval, datetime, stableMC, unstableMC, stableVol, unstableVol);
+    const db = await CoinDB("coin-global").putGlobalData(interval, datetime, stableMC, unstableMC, stableVol, unstableVol);
     if(db['$response'].error) {
       body.status = "failed";
     }
 
     //---------------- indiv coins ------------------ //
     const bothArr = [...stables, ...unstables];
-    const dbReceipts = await storeCoinData(bothArr, datetime);
+    const dbReceipts = await storeCoinData(CSD_TABLE, bothArr, datetime);
     body.CSDReceipts = dbReceipts;
   } catch (err) {
     statusCode = 500;
@@ -67,12 +68,12 @@ const putGlobalCoinData = async ({ eventBody }) => {
   };
 }
 
-const storeCoinData = async (coinArr, datetime) => {
+const storeCoinData = async (table, coinArr, datetime) => {
   const receipt = [];
   for(let coinData of coinArr) {
     try {
       const { coin, usd_market_cap, usd_24h_vol, usd } = coinData;
-      const db = await CoinDB(process.env['CSD_HOURLY_TABLE']).putCSDData(coin, datetime, usd, usd_market_cap, usd_24h_vol);
+      const db = await CoinDB(table).putCSDData(coin, datetime, usd, usd_market_cap, usd_24h_vol);
       receipt.push({coin, status: 200});
       await timeout(500);
     } catch (e) {
