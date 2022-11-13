@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
 
     const response = {
       statusCode: result.statusCode || 200,
-      body: result.body,
+      body: JSON.stringify(result.body),
       headers: result.headers || { "content-type": "application/json" },
     }
     console.log("FINAL RESPONSE => " + JSON.stringify(response));
