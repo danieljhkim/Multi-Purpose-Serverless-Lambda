@@ -1,6 +1,7 @@
 const { coinService } = require('../../services/coin.service');
 const { CoinDB } = require('../../aws/dynamo/dao/coinDB');
 const { coinIndex, stableCoins } = require('../../helpers/constants');
+const { timeout } = require('../../helpers/util');
 const receipt = [];
 
 const putHourlyData = async ({ eventBody }) => {
@@ -62,6 +63,7 @@ const storeData = async (resp, coin) => {
       }
       const db = await CoinDB(process.env['COIN_HOURLY_TABLE']).putChartData(coin, price[0], price[1], marketCap[1], volumn[1]);
       console.log(coin + "=> DB operation success. timestamp: " + price[0]);
+      await timeout(1000);
     }
     return 200;
   } catch (e) {

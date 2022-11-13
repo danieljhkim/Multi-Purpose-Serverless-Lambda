@@ -1,4 +1,5 @@
 const RestService = require('./wrapper/restService');
+const { timeout } = require('../helpers/util');
 
 const coinService = () => {
 
@@ -12,7 +13,8 @@ const coinService = () => {
       return resp.data;
     } catch (err) {
       if(retry <= 5) {
-        retry++;         
+        retry++;
+        await timeout(10000);
         return _getSimpleCoinData(coinList);
       } else {
         console.error("AXIOS ERROR: ", JSON.stringify(err));
@@ -30,6 +32,7 @@ const coinService = () => {
     } catch(e) {
       if(retry <= 5) {
         retry++;
+        await timeout(10000);
         return _getCoinMarketChart(coin, days);
       } else {
         console.error("AXIOS ERROR: ", JSON.stringify(e));

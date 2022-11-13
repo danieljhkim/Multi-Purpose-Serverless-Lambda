@@ -28,9 +28,20 @@ const CoinDB = (tableName) => {
     return data;
   }
 
+  const _putCSDData = async (name, date, price, mc, vol) => {
+    const _items = {
+      price: price,
+      market_cap: mc,
+      volumn: vol
+    };
+    const data = await _dbClient.put({pk: name, sk: date, items: _items});
+    return data;
+  }
+
   return {
     putChartData: _putChartData,
-    putGlobalData: _putGlobalData
+    putGlobalData: _putGlobalData,
+    putCSDData: _putCSDData
   }
 }
 
