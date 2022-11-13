@@ -58,8 +58,6 @@ const putGlobalCoinData = async ({ eventBody }) => {
     statusCode = 500;
     body.globalStatus = "failed";
     body.message = err.message;
-  } finally {
-    body = JSON.stringify(body);
   }
   return {
     statusCode,
@@ -73,7 +71,9 @@ const storeCoinData = async (table, coinArr, datetime) => {
   for(let coinData of coinArr) {
     try {
       const { coin, usd_market_cap, usd_24h_vol, usd } = coinData;
-      const db = await CoinDB(table).putCSDData(coin, datetime, usd, usd_market_cap, usd_24h_vol);
+      const mc = Math.floor(usd_market_cap);
+      const vol = Math.floor(usd_24h_vol);
+      const db = await CoinDB(table).putCSDData(coin, datetime, usd, mc, vol);
       receipt.push({coin, status: 200});
       await timeout(500);
     } catch (e) {

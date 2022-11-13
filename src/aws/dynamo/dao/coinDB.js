@@ -38,10 +38,16 @@ const CoinDB = (tableName) => {
     return data;
   }
 
+  const _getChartData = async (name, start, end) => {
+    const data = await _dbClient.queryWithSortRange({pk: name, start, end});
+    return data;
+  }
+
   return {
     putChartData: _putChartData,
     putGlobalData: _putGlobalData,
-    putCSDData: _putCSDData
+    putCSDData: _putCSDData,
+    getChartData: _getChartData
   }
 }
 

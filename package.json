@@ -2,11 +2,11 @@
   "name": "coin-lambda",
   "version": "1.0.0",
   "description": "node lambda",
+  "author": "danieljhkim",
   "main": "src/index.js",
   "scripts": {
     "test": "test"
   },
-  "author": "Daniel Kim",
   "license": "ISC",
   "dependencies": {
     "@hapi/joi": "^17.1.1",

@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
 
     const response = {
       statusCode: result.statusCode || 200,
-      body: JSON.stringify(result.body),
+      body: result.body,
       headers: result.headers || { "content-type": "application/json" },
     }
     console.log("FINAL RESPONSE => " + JSON.stringify(response));
@@ -22,7 +22,7 @@ exports.handler = async (event, context) => {
     console.error(e);
     const response = {
       statusCode: e.statusCode || 500,
-      body: JSON.stringify({ error: e.message }),
+      body: { error: e.message },
       headers: { "content-type": "application/json" },
     };
     console.log("FINAL ERROR RESPONSE => " + JSON.stringify(response));

@@ -1,7 +1,7 @@
 const jparse = (obj) => {
   let output = {};
   try {
-      output = JSON.parse(obj);
+    output = JSON.parse(obj);
   } catch (error) {
     try {
       output = JSON.parse(JSON.stringify(obj));
