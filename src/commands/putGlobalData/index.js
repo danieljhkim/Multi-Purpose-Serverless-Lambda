@@ -18,36 +18,20 @@ const putGlobalCoinData = async ({ eventBody }) => {
     const CSD_TABLE = interval === 'hourly' ? process.env['CSD_HOURLY_TABLE'] : process.env['CSD_DAILY_TABLE'];
 
     //---------------- globals ------------------ //
-    let [stableMC, stableVol, unstableMC, unstableVol, datetime] = [0, 0, 0, 0, Math.floor(Date.now() / 1000)];
-    const unStableResp = await coinService().getCoinData(coinList);
-    const unstables = Object.keys(unStableResp).map(key => { 
-      unStableResp[key]["coin"] = key;
-      return unStableResp[key];
-    });
-    const stableResp = await coinService().getCoinData(stableCoins.join());
-    const stables = Object.keys(stableResp).map(key => {
-      stableResp[key]["coin"] = key;
-      return stableResp[key];
-    });
-    if(Array.isArray(unstables)) {
-      for(let i=0; i<unstables.length; i++) {
-        unstableMC += unstables[i]['usd_market_cap'];
-        unstableVol += unstables[i]['usd_24h_vol'];
+    const datetime = Math.floor(Date.now() / 1000);
+    let data = null;
+    while(true) {
+      let temp = await calculateGlobals();
+      if(!!temp) {
+        data = temp;
+        break;
       }
     }
-    if(Array.isArray(stables)) {
-      for(let i=0; i<stables.length; i++) {
-        stableMC += stables[i]['usd_market_cap'];
-        stableVol += stables[i]['usd_24h_vol'];
-      }
-    }
-    stableMC = Math.floor(stableMC);
-    unstableMC = Math.floor(unstableMC);
-    stableVol = Math.floor(stableVol);
-    unstableVol = Math.floor(unstableVol);
+    const { stableMC, unstableMC, stableVol, unstableVol, stables, unstables } = data;
     const db = await CoinDB("coin-global").putGlobalData(interval, datetime, stableMC, unstableMC, stableVol, unstableVol);
     if(db['$response'].error) {
       body.status = "failed";
+      console.error("DB ERROR => ", JSON.stringify(db));
     }
 
     //---------------- indiv coins ------------------ //
@@ -63,6 +47,54 @@ const putGlobalCoinData = async ({ eventBody }) => {
     statusCode,
     body,
     headers
+  };
+}
+
+const calculateGlobals = async () => {
+  let [stableMC, stableVol, unstableMC, unstableVol] = [0, 0, 0, 0];
+  const unStableResp = await coinService().getCoinData(coinList);
+  const unstables = Object.keys(unStableResp).map(key => { 
+    unStableResp[key]["coin"] = key;
+    return unStableResp[key];
+  });
+  const stableResp = await coinService().getCoinData(stableCoins.join());
+  const stables = Object.keys(stableResp).map(key => {
+    stableResp[key]["coin"] = key;
+    return stableResp[key];
+  });
+  if(Array.isArray(unstables)) {
+    for(let i=0; i<unstables.length; i++) {
+      if(unstables[i]['usd_market_cap'] === 0) {
+        console.error("**ISSUE**: 0 MC => ", JSON.stringify(unstables[i]));
+      }
+      unstableMC += unstables[i]['usd_market_cap'];
+      unstableVol += unstables[i]['usd_24h_vol'];
+    }
+  }
+  if(Array.isArray(stables)) {
+    for(let i=0; i<stables.length; i++) {
+      if(stables[i]['usd_market_cap'] === 0) {
+        console.error("**ISSUE**: 0 MC => ", JSON.stringify(stables[i]));
+      }
+      stableMC += stables[i]['usd_market_cap'];
+      stableVol += stables[i]['usd_24h_vol'];
+    }
+  }
+  stableMC = Math.floor(stableMC);
+  unstableMC = Math.floor(unstableMC);
+  stableVol = Math.floor(stableVol);
+  unstableVol = Math.floor(unstableVol);
+  const numArr = [stableMC, unstableMC, stableVol, unstableVol];
+  if(numArr.includes(0)) {
+    return false;
+  }
+  return {
+    stableMC,
+    unstableMC,
+    stableVol,
+    unstableVol,
+    stables,
+    unstables
   };
 }
 
