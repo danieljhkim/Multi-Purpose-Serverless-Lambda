@@ -28,7 +28,7 @@ const putGlobalCoinData = async ({ eventBody }) => {
       }
     }
     const { stableMC, unstableMC, stableVol, unstableVol, stables, unstables } = data;
-    const db = await CoinDB("coin-global").putGlobalData(interval, datetime, stableMC, unstableMC, stableVol, unstableVol);
+    const db = await CoinDB(process.env.CSD_GLOBAL_TABLE).putGlobalData(interval, datetime, stableMC, unstableMC, stableVol, unstableVol);
     if(db['$response'].error) {
       body.status = "failed";
       console.error("DB ERROR => ", JSON.stringify(db));

@@ -1,5 +1,4 @@
 const { CoinDB } = require('../../aws/dynamo/dao/coinDB');
-const { coinIndex, stableCoins } = require('../../helpers/constants');
 const { jparse } = require('../../helpers/util');
 
 const getGlobalData = async ({ eventBody }) => {
