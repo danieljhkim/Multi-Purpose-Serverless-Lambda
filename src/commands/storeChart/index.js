@@ -1,13 +1,12 @@
 const { CoinDB } = require('../../aws/dynamo/dao/coinDB');
 const { jparse, timeout } = require('../../helpers/util');
-const { coinIndex } = require('../../helpers/constants');
+const { coinIndex, stableCoins } = require('../../helpers/constants');
 const sparkline = require('node-sparkline');
 const fs = require("fs");
 const { S3 } = require('../../aws/s3');
 const { promisify } = require('util');
 const writeFile = promisify(fs.writeFile);
 const path = require('path');
-
 
 const storeChart = async ({ eventBody }) => {
   console.log('Received event:', JSON.stringify(eventBody, null, 2));
@@ -21,7 +20,13 @@ const storeChart = async ({ eventBody }) => {
     const start = end - 60 * 60 * 24 * 5; // last 5 days
     for(let coin of coinIndex) {
       const data = await CoinDB(process.env.CSD_HOURLY_TABLE).getChartData(coin, start, end);
-      const graphData = data.map((item) => item.price);
+      const graphData = data.map((item) => item.market_cap);
+      generateChart(graphData, coin);
+      await timeout(1000);
+    }
+    for(let coin of stableCoins) {
+      const data = await CoinDB(process.env.CSD_HOURLY_TABLE).getChartData(coin, start, end);
+      const graphData = data.map((item) => item.market_cap);
       generateChart(graphData, coin);
       await timeout(1000);
     }
@@ -40,7 +45,7 @@ const storeChart = async ({ eventBody }) => {
 const generateChart = (data, coin) => {
   try {
     const first = data[0];
-    const last = data[-1];
+    const last = data[data.length-1];
     const color = first >= last ? '#CF0A0A': '#57bd0f';
     const svg = sparkline({
       values: data,
