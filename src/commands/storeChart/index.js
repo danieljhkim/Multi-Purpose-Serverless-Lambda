@@ -18,17 +18,12 @@ const storeChart = async ({ eventBody }) => {
   try {
     const end = Math.floor(Date.now() / 1000);
     const start = end - 60 * 60 * 24 * 5; // last 5 days
+    await chartCsdIndex(start, end);
     for(let coin of coinIndex) {
-      const data = await CoinDB(process.env.CSD_HOURLY_TABLE).getChartData(coin, start, end);
-      const graphData = data.map((item) => item.market_cap);
-      generateChart(graphData, coin);
-      await timeout(1000);
+      await chartCoins(coin, start, end);
     }
     for(let coin of stableCoins) {
-      const data = await CoinDB(process.env.CSD_HOURLY_TABLE).getChartData(coin, start, end);
-      const graphData = data.map((item) => item.market_cap);
-      generateChart(graphData, coin);
-      await timeout(1000);
+      await chartCoins(coin, start, end);
     }
   } catch (err) {
     err = jparse(err);
@@ -40,6 +35,31 @@ const storeChart = async ({ eventBody }) => {
     body,
     headers
   };
+}
+
+const chartCsdIndex = async (start, end) => {
+  try {
+    const globalData = await CoinDB("coin-global").getChartData("hourly", start, end);
+    const stableMC = globalData.map(item => item.stable_mc);
+    const csd50MC =  globalData.map(item => item.none_stable_mc);
+    generateChart(stableMC, "csd10");
+    await timeout(1000);
+    generateChart(csd50MC, "csd50");
+    await timeout(1000);
+  } catch (err) {
+    console.error("Failed to chart Global. Error => ", JSOON.stringify(err));
+  }
+}
+
+const chartCoins = async (coin, start, end) => {
+  try {
+    const data = await CoinDB(process.env.CSD_HOURLY_TABLE).getChartData(coin, start, end);
+    const graphData = data.map((item) => item.market_cap);
+    generateChart(graphData, coin);
+    await timeout(1000);
+  } catch(e) {
+    console.error(`Failed to chart Coin: ${coin}. Error: ${JSON.stringify(e)}`);
+  }
 }
 
 const generateChart = (data, coin) => {

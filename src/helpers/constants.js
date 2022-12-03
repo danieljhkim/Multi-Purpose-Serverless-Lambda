@@ -20,6 +20,4 @@ const coinIndex = [
   'the-graph',         'fantom'
 ];
 
-console.log(coinIndex);
-
 module.exports = { coinList, stableCoins, coinIndex };
