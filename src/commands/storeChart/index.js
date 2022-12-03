@@ -42,9 +42,9 @@ const chartCsdIndex = async (start, end) => {
     const globalData = await CoinDB("coin-global").getChartData("hourly", start, end);
     const stableMC = globalData.map(item => item.stable_mc);
     const csd50MC =  globalData.map(item => item.none_stable_mc);
-    generateChart(stableMC, "csd10");
+    generateChart(stableMC, "CSD10");
     await timeout(1000);
-    generateChart(csd50MC, "csd50");
+    generateChart(csd50MC, "CSD50");
     await timeout(1000);
   } catch (err) {
     console.error("Failed to chart Global. Error => ", JSOON.stringify(err));
