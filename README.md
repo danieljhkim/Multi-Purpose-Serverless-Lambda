@@ -3,8 +3,13 @@ This serverless lambda is designed to be used for multiple utilizations across m
 
 Features:
 - AWS DynamoDB Client Interface
+  - Query Operations
+  - Put operations
 - AWS S3 Client Interface
+  - Get operations
+  - Put operations
 - AWS SNS Client Interface
+  - Invoke operations
 - Error auditing to S3 Bucket for critical operations
 
 # How to Use
@@ -28,7 +33,8 @@ $ node express-app
     }
   }
 }
-
+```
+```
 {
   "event": {
     "body": {
