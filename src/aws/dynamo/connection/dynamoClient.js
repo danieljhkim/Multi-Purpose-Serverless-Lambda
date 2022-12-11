@@ -37,7 +37,7 @@ const dynamoClient = (tableName) => {
       "#PK": _SCHEMA.partitionKey,
     };
     _param_q.ExpressionAttributeValues = {
-      ':pk': pk.toUpperCase()
+      ':pk': pk
     };
     try {
       const data = await _dynamo.query(_param_q).promise();
@@ -117,6 +117,23 @@ const dynamoClient = (tableName) => {
     }
   }
 
+  const _putPKOnly = async ({ pk, items }) => {
+    const _param_p = Object.assign({}, _param);
+    _param_p.Key = {
+      [_SCHEMA.partitionKey]: pk,
+    }
+    _param_p.Item = {
+      [_SCHEMA.partitionKey]: pk,
+      ...items,
+    };
+    try {
+      const data = await _dynamo.put(_param_p).promise();
+      return data;
+    } catch(e) {
+      throw new Error(e.message);
+    }
+  }
+
   const _updateSingle = async ({ pk, sk }, {column, value}) => {
     const _param_u = Object.assign({}, _param);
     _param_u.Key = {
@@ -174,7 +191,8 @@ const dynamoClient = (tableName) => {
     put: _put,
     update: _update,
     updateSingle: _updateSingle,
-    queryWithSortRange: _queryWithSortRange
+    queryWithSortRange: _queryWithSortRange,
+    putPKOnly: _putPKOnly
   }
 }
 

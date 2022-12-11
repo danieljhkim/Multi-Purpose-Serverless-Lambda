@@ -23,6 +23,10 @@ const CSD_DAILY_SCHEMA = {
   sortKey: "datetime",
 }
 
+const BATCH_COINS_SCHEMA = {
+  partitionKey: "time"
+}
+
 const SCHEMA = {
   //tableName: schema
   "coin-daily": COIN_DAILY_SCHEMA,
@@ -31,5 +35,6 @@ const SCHEMA = {
   "CSD-hourly": CSD_HOURLY_SCHEMA,
   "CSD-daily": CSD_DAILY_SCHEMA,
   "testing": CSD_HOURLY_SCHEMA,
+  "batch-coins": BATCH_COINS_SCHEMA,
 }
-module.exports = { COIN_GLOBAL_SCHEMA, COIN_HORULY_SCHEMA, COIN_DAILY_SCHEMA, SCHEMA }
+module.exports = { COIN_GLOBAL_SCHEMA, COIN_HORULY_SCHEMA, COIN_DAILY_SCHEMA, SCHEMA, BATCH_COINS_SCHEMA }

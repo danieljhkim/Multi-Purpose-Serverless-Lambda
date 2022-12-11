@@ -43,11 +43,24 @@ const CoinDB = (tableName) => {
     return data;
   }
 
+  const _updateBatchCoins = async (coins) => {
+    const items = { data: coins };
+    const data = await _dbClient.putPKOnly({ pk: "latest", items });
+    return data;
+  }
+
+  const _getBatchCoins = async (pk="latest") => {
+    const data = await _dbClient.query({ pk });
+    return data;
+  }
+
   return {
     putChartData: _putChartData,
     putGlobalData: _putGlobalData,
     putCSDData: _putCSDData,
-    getChartData: _getChartData
+    getChartData: _getChartData,
+    updateBatchCoins: _updateBatchCoins,
+    getBatchCoins: _getBatchCoins
   }
 }
 

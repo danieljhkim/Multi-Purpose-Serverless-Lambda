@@ -40,12 +40,23 @@ const coinService = () => {
         //throw e;
       }
     }
+  }
 
+  const _fetchDetailedData = async (coins) => {
+    const url = baseUrl + `/coins/markets?ids=${coins}&vs_currency=usd&locale=en`;
+    try {
+      const resp = await RestService().get(url);
+      return resp.data;
+    } catch (error) {
+      //throw error;
+      return false;
+    }
   }
 
   return {
     getCoinData: _getSimpleCoinData,
-    getMarketChart: _getCoinMarketChart
+    getMarketChart: _getCoinMarketChart,
+    fetchDetailedData: _fetchDetailedData
   }
 }
 

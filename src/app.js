@@ -13,7 +13,7 @@ exports.handler = async (event, context) => {
       throw new Error(`Action ${eventBody.action} is not supported.`);
     }
     const result = await command({ eventBody, context, auditor });
-
+    
     const response = {
       statusCode: result.statusCode || 200,
       body: JSON.stringify(result.body),

@@ -5,6 +5,8 @@ const { getCoinData } = require('./getCoinData');
 const { getGlobalData } = require('./getGlobalData');
 const { storeChart } = require('./storeChart');
 const { getCharts } = require('./getCharts');
+const { updateBatchCoins } = require('./updateBatchCoins');
+const { getBatchCoins } = require('./getBatchCoins');
 
 const commands = {
   [ACTIONS.WRITE_COINS_GLOBAL_TO_DB]: putGlobalCoinData,
@@ -13,6 +15,8 @@ const commands = {
   [ACTIONS.GET_GLOBAL_DB]: getGlobalData,
   [ACTIONS.STORE_COIN_CHARTS]: storeChart,
   [ACTIONS.GET_COIN_CHARTS]: getCharts,
+  [ACTIONS.UPDATE_BATCH_COINS]: updateBatchCoins,
+  [ACTIONS.GET_BATCH_COINS]: getBatchCoins,
 }
 
 module.exports = { commands };
