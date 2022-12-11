@@ -42,17 +42,18 @@ const fetchData = async (coins) => {
 
 const storeData = async (coins) => {
   try {
-    const coinArr = coins.map((item) => {
-      let entry = {
+    const coinDict = {};
+    for(let item of coins) {
+      coinDict[item.id] = {
         id: item.id,
         price: item.current_price,
         market_cap: item.market_cap,
         mc_24hr_change: item.market_cap_change_percentage_24h,
-        price_24hr_change: item.price_change_percentage_24h
+        price_24hr_change: item.price_change_percentage_24h,
+        volume: item.total_volume
       };
-      return entry;
-    });
-    const dbResp = await CoinDB(process.env.BATCH_COINS_TABLE).updateBatchCoins(coinArr);
+    }
+    const dbResp = await CoinDB(process.env.BATCH_COINS_TABLE).updateBatchCoins(coinDict);
     return dbResp;
   } catch (e) {
     console.error(`**ERROR**: store Detailed Data => DB operation failed : ${e.message}`);
